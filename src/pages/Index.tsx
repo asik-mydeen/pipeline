@@ -3,7 +3,7 @@ import { projects } from "@/data/projects";
 import { ProjectCard } from "@/components/ProjectCard";
 import { PipelineHeader } from "@/components/PipelineHeader";
 
-type Filter = "all" | "live" | "error" | "down";
+type Filter = "all" | "live" | "running" | "degraded" | "down";
 
 export default function Index() {
   const [filter, setFilter] = useState<Filter>("all");
@@ -12,17 +12,15 @@ export default function Index() {
 
   const filtered = useMemo(() => {
     let list = projects;
-    if (filter === "live") list = list.filter((p) => p.httpStatus === "200");
-    if (filter === "error") list = list.filter((p) => p.httpStatus === "502");
-    if (filter === "down")
-      list = list.filter((p) => p.httpStatus === "unreachable");
+    if (filter !== "all") list = list.filter((p) => p.health === filter);
     if (search.trim()) {
       const q = search.toLowerCase();
       list = list.filter(
         (p) =>
           p.name.toLowerCase().includes(q) ||
           p.appName.toLowerCase().includes(q) ||
-          p.domain.toLowerCase().includes(q)
+          p.domain.toLowerCase().includes(q) ||
+          p.serviceType.toLowerCase().includes(q)
       );
     }
     return list;
@@ -31,7 +29,8 @@ export default function Index() {
   const filters: { key: Filter; label: string }[] = [
     { key: "all", label: "All" },
     { key: "live", label: "Live" },
-    { key: "error", label: "Errors" },
+    { key: "running", label: "Running" },
+    { key: "degraded", label: "Degraded" },
     { key: "down", label: "Down" },
   ];
 
@@ -40,7 +39,6 @@ export default function Index() {
       <PipelineHeader projects={projects} lastUpdated={lastUpdated} />
 
       <main className="max-w-6xl mx-auto px-4 sm:px-6 py-6">
-        {/* Filters */}
         <div className="flex flex-col sm:flex-row gap-3 mb-6">
           <div className="flex gap-1 bg-secondary/50 rounded-lg p-1">
             {filters.map((f) => (
@@ -59,14 +57,13 @@ export default function Index() {
           </div>
           <input
             type="text"
-            placeholder="Search projects..."
+            placeholder="Search projects or type (web, mcp, service)..."
             value={search}
             onChange={(e) => setSearch(e.target.value)}
-            className="bg-secondary/50 border rounded-lg px-3 py-1.5 text-sm font-mono text-foreground placeholder:text-muted-foreground focus:outline-none focus:ring-1 focus:ring-primary/50 w-full sm:w-64"
+            className="bg-secondary/50 border rounded-lg px-3 py-1.5 text-sm font-mono text-foreground placeholder:text-muted-foreground focus:outline-none focus:ring-1 focus:ring-primary/50 w-full sm:w-80"
           />
         </div>
 
-        {/* Projects */}
         <div className="space-y-3">
           {filtered.map((project, i) => (
             <ProjectCard key={project.name} project={project} index={i} />

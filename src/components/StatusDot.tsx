@@ -1,15 +1,17 @@
 import { cn } from "@/lib/utils";
-import type { HttpStatus } from "@/data/projects";
+import type { HealthStatus } from "@/data/projects";
 
 interface StatusDotProps {
-  status: HttpStatus;
+  status: HealthStatus;
   size?: "sm" | "md" | "lg";
 }
 
-const statusStyles: Record<HttpStatus, string> = {
-  "200": "bg-status-success shadow-[var(--glow-green)]",
-  "502": "bg-status-error shadow-[var(--glow-red)]",
-  "unreachable": "bg-status-unreachable",
+const statusStyles: Record<HealthStatus, string> = {
+  live: "bg-status-success shadow-[var(--glow-green)]",
+  running: "bg-status-running shadow-[var(--glow-blue)]",
+  degraded: "bg-status-error shadow-[var(--glow-red)]",
+  down: "bg-status-error",
+  unknown: "bg-status-unreachable",
 };
 
 const sizeStyles = {
@@ -25,7 +27,7 @@ export function StatusDot({ status, size = "md" }: StatusDotProps) {
         "inline-block rounded-full",
         sizeStyles[size],
         statusStyles[status],
-        status === "200" && "animate-pulse-dot"
+        (status === "live" || status === "running") && "animate-pulse-dot"
       )}
     />
   );

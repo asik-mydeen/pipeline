@@ -1,5 +1,6 @@
 export type DeploymentStatus = "done" | "error" | "building";
-export type HttpStatus = "200" | "502" | "unreachable";
+export type ServiceType = "web" | "mcp" | "service" | "iot";
+export type HealthStatus = "live" | "running" | "degraded" | "down" | "unknown";
 
 export interface Deployment {
   status: DeploymentStatus;
@@ -17,8 +18,8 @@ export interface Project {
   name: string;
   appName: string;
   domain: string;
-  dokployStatus: DeploymentStatus;
-  httpStatus: HttpStatus;
+  serviceType: ServiceType;
+  health: HealthStatus;
   httpCode?: number;
   deployments: Deployment[];
   githubActions: GitHubAction[];
@@ -29,8 +30,8 @@ export const projects: Project[] = [
     name: "ship-mcp",
     appName: "ship-mcp",
     domain: "ship-mcp.asikmydeen.com",
-    dokployStatus: "done",
-    httpStatus: "unreachable",
+    serviceType: "mcp",
+    health: "running",
     deployments: [
       { status: "done", duration: "7s", message: "feat: add ship_deploy_existing", timestamp: "2026-04-04T02:19:14Z" },
       { status: "done", duration: "1s", message: "docs: comprehensive MCP infrastructure guide", timestamp: "2026-04-03T18:28:08Z" },
@@ -47,8 +48,8 @@ export const projects: Project[] = [
     name: "memory-mcp",
     appName: "memory-mcp",
     domain: "memory-mcp.asikmydeen.com",
-    dokployStatus: "done",
-    httpStatus: "unreachable",
+    serviceType: "mcp",
+    health: "running",
     deployments: [
       { status: "done", duration: "5s", message: "fix: remove all silent defaults across cal", timestamp: "2026-04-04T09:32:05Z" },
       { status: "done", duration: "5s", message: "fix: food member param ask user if not clear", timestamp: "2026-04-04T05:56:13Z" },
@@ -65,8 +66,8 @@ export const projects: Project[] = [
     name: "life-mcp",
     appName: "life-mcp",
     domain: "life-mcp.asikmydeen.com",
-    dokployStatus: "done",
-    httpStatus: "unreachable",
+    serviceType: "mcp",
+    health: "running",
     deployments: [
       { status: "done", duration: "4s", message: "docs: point to full infra guide", timestamp: "2026-04-03T18:28:05Z" },
       { status: "done", duration: "4s", message: "ci: deploy workflow", timestamp: "2026-04-03T18:04:05Z" },
@@ -81,8 +82,8 @@ export const projects: Project[] = [
     name: "resume-builder",
     appName: "resume-builder",
     domain: "resume-builder.asikmydeen.com",
-    dokployStatus: "done",
-    httpStatus: "200",
+    serviceType: "web",
+    health: "live",
     httpCode: 200,
     deployments: [
       { status: "done", duration: "38s", message: "fix: move tailwindcss/postcss/autoprefixer to deps", timestamp: "2026-04-03T18:29:23Z" },
@@ -98,8 +99,8 @@ export const projects: Project[] = [
     name: "mindfulbites",
     appName: "mindfulbites",
     domain: "mindfulbites.asikmydeen.com",
-    dokployStatus: "done",
-    httpStatus: "unreachable",
+    serviceType: "web",
+    health: "down",
     deployments: [
       { status: "done", duration: "24s", message: "fix: lazy-init OpenAI client to avoid build-time crash", timestamp: "2026-04-03T04:53:34Z" },
       { status: "error", duration: "14s", message: "fix: add dark background to page-level containers", timestamp: "2026-04-03T04:51:17Z" },
@@ -115,8 +116,8 @@ export const projects: Project[] = [
     name: "todo",
     appName: "todo",
     domain: "todo.asikmydeen.com",
-    dokployStatus: "done",
-    httpStatus: "200",
+    serviceType: "web",
+    health: "live",
     httpCode: 200,
     deployments: [
       { status: "done", duration: "64s", message: "fix: remove Dockerfile, use Nixpacks with config", timestamp: "2026-04-02T19:31:12Z" },
@@ -133,8 +134,8 @@ export const projects: Project[] = [
     name: "ship-e2e-test",
     appName: "ship-e2e-test",
     domain: "ship-e2e-test.asikmydeen.com",
-    dokployStatus: "done",
-    httpStatus: "200",
+    serviceType: "web",
+    health: "live",
     httpCode: 200,
     deployments: [
       { status: "done", duration: "6s", message: "feat: add /version endpoint", timestamp: "2026-04-02T19:04:57Z" },
@@ -147,11 +148,25 @@ export const projects: Project[] = [
     ],
   },
   {
+    name: "pipeline",
+    appName: "pipeline",
+    domain: "pipeline.asikmydeen.com",
+    serviceType: "web",
+    health: "live",
+    httpCode: 200,
+    deployments: [
+      { status: "done", duration: "10s", message: "feat: pipeline dashboard UI with project data", timestamp: "2026-04-06T17:37:00Z" },
+    ],
+    githubActions: [
+      { status: "success", timestamp: "2026-04-06T17:37:00Z" },
+    ],
+  },
+  {
     name: "car-racers",
     appName: "ffe",
     domain: "car-racers.asikmydeen.com",
-    dokployStatus: "done",
-    httpStatus: "unreachable",
+    serviceType: "web",
+    health: "down",
     deployments: [
       { status: "done", duration: "0s", message: "Rebuild deployment", timestamp: "2026-04-02T16:00:00Z" },
       { status: "done", duration: "6s", message: "Merge PR #1 add-game feature", timestamp: "2026-04-02T15:50:00Z" },
@@ -164,8 +179,8 @@ export const projects: Project[] = [
     name: "ollama",
     appName: "ollama",
     domain: "ollama.asikmydeen.com",
-    dokployStatus: "done",
-    httpStatus: "502",
+    serviceType: "service",
+    health: "degraded",
     httpCode: 502,
     deployments: [
       { status: "done", duration: "87s", message: "Manual deployment", timestamp: "2026-04-02T12:00:00Z" },
@@ -176,8 +191,8 @@ export const projects: Project[] = [
     name: "famcal",
     appName: "famcal",
     domain: "famcal.asikmydeen.com",
-    dokployStatus: "done",
-    httpStatus: "unreachable",
+    serviceType: "web",
+    health: "unknown",
     deployments: [],
     githubActions: [],
   },
@@ -185,8 +200,8 @@ export const projects: Project[] = [
     name: "ESPHome",
     appName: "esphome",
     domain: "esphome.asikmydeen.com",
-    dokployStatus: "done",
-    httpStatus: "unreachable",
+    serviceType: "iot",
+    health: "unknown",
     deployments: [],
     githubActions: [],
   },
@@ -194,8 +209,8 @@ export const projects: Project[] = [
     name: "RuView",
     appName: "ruview",
     domain: "ruview.asikmydeen.com",
-    dokployStatus: "done",
-    httpStatus: "unreachable",
+    serviceType: "web",
+    health: "unknown",
     deployments: [],
     githubActions: [],
   },

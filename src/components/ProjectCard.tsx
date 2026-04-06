@@ -1,32 +1,58 @@
 import { useState } from "react";
 import { cn } from "@/lib/utils";
-import type { Project } from "@/data/projects";
+import type { Project, ServiceType } from "@/data/projects";
 import { StatusDot } from "./StatusDot";
 import { DeploymentTimeline } from "./DeploymentTimeline";
-import { ChevronDown, ExternalLink, GitBranch, Globe, Server } from "lucide-react";
+import { ChevronDown, ExternalLink, GitBranch, Globe, Server, Cpu, Radio, Monitor } from "lucide-react";
 
 interface ProjectCardProps {
   project: Project;
   index: number;
 }
 
-function httpLabel(status: string): string {
-  if (status === "200") return "LIVE";
-  if (status === "502") return "502";
-  return "DOWN";
-}
+const healthLabel: Record<string, string> = {
+  live: "LIVE",
+  running: "RUNNING",
+  degraded: "DEGRADED",
+  down: "DOWN",
+  unknown: "UNKNOWN",
+};
+
+const healthColor: Record<string, string> = {
+  live: "bg-status-success/15 text-status-success",
+  running: "bg-status-running/15 text-status-running",
+  degraded: "bg-status-error/15 text-status-error",
+  down: "bg-status-error/10 text-status-error",
+  unknown: "bg-muted text-muted-foreground",
+};
+
+const typeIcon: Record<ServiceType, typeof Monitor> = {
+  web: Monitor,
+  mcp: Cpu,
+  service: Server,
+  iot: Radio,
+};
+
+const typeLabel: Record<ServiceType, string> = {
+  web: "Web",
+  mcp: "MCP",
+  service: "Service",
+  iot: "IoT",
+};
 
 export function ProjectCard({ project, index }: ProjectCardProps) {
   const [expanded, setExpanded] = useState(false);
   const errorCount = project.deployments.filter((d) => d.status === "error").length;
+  const TypeIcon = typeIcon[project.serviceType];
 
   return (
     <div
       className={cn(
         "rounded-lg border bg-card overflow-hidden transition-all duration-300",
         "animate-fade-in-up hover:border-muted-foreground/30",
-        project.httpStatus === "200" && "border-status-success/20",
-        project.httpStatus === "502" && "border-status-error/20"
+        project.health === "live" && "border-status-success/20",
+        project.health === "running" && "border-status-running/20",
+        project.health === "degraded" && "border-status-error/20"
       )}
       style={{ animationDelay: `${index * 80}ms` }}
     >
@@ -35,13 +61,17 @@ export function ProjectCard({ project, index }: ProjectCardProps) {
         className="w-full flex items-center justify-between p-4 text-left hover:bg-secondary/30 transition-colors"
       >
         <div className="flex items-center gap-3 min-w-0">
-          <StatusDot status={project.httpStatus} size="lg" />
+          <StatusDot status={project.health} size="lg" />
           <div className="min-w-0">
             <div className="flex items-center gap-2">
               <h3 className="font-semibold text-foreground truncate">{project.name}</h3>
               {project.appName !== project.name && (
                 <span className="text-xs text-muted-foreground font-mono">({project.appName})</span>
               )}
+              <span className="hidden sm:inline-flex items-center gap-1 text-[10px] text-muted-foreground font-mono px-1.5 py-0.5 rounded bg-secondary">
+                <TypeIcon className="h-2.5 w-2.5" />
+                {typeLabel[project.serviceType]}
+              </span>
             </div>
             <div className="flex items-center gap-3 mt-0.5 text-xs text-muted-foreground font-mono">
               <span className="flex items-center gap-1">
@@ -54,15 +84,8 @@ export function ProjectCard({ project, index }: ProjectCardProps) {
 
         <div className="flex items-center gap-3 shrink-0">
           <div className="hidden sm:flex items-center gap-3 text-xs font-mono">
-            <span
-              className={cn(
-                "px-2 py-0.5 rounded-full font-semibold",
-                project.httpStatus === "200" && "bg-status-success/15 text-status-success",
-                project.httpStatus === "502" && "bg-status-error/15 text-status-error",
-                project.httpStatus === "unreachable" && "bg-muted text-muted-foreground"
-              )}
-            >
-              {httpLabel(project.httpStatus)}
+            <span className={cn("px-2 py-0.5 rounded-full font-semibold", healthColor[project.health])}>
+              {healthLabel[project.health]}
             </span>
             {errorCount > 0 && <span className="text-status-error">{errorCount} err</span>}
             <span className="flex items-center gap-1 text-muted-foreground">
@@ -77,7 +100,7 @@ export function ProjectCard({ project, index }: ProjectCardProps) {
             )}
           </div>
 
-          {project.httpStatus === "200" && (
+          {project.health === "live" && (
             <a
               href={`https://${project.domain}`}
               target="_blank"
