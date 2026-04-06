@@ -1,5 +1,6 @@
 import type { Project } from "@/data/projects";
-import { Activity, CheckCircle2, Cpu, AlertTriangle, XCircle } from "lucide-react";
+import { Activity, CheckCircle2, Cpu, AlertTriangle, XCircle, LogOut } from "lucide-react";
+import { useAuth } from "@/hooks/useAuth";
 
 interface PipelineHeaderProps {
   projects: Project[];
@@ -7,6 +8,7 @@ interface PipelineHeaderProps {
 }
 
 export function PipelineHeader({ projects, lastUpdated }: PipelineHeaderProps) {
+  const { user, signOut } = useAuth();
   const live = projects.filter((p) => p.health === "live").length;
   const running = projects.filter((p) => p.health === "running").length;
   const degraded = projects.filter((p) => p.health === "degraded").length;
@@ -52,6 +54,18 @@ export function PipelineHeader({ projects, lastUpdated }: PipelineHeaderProps) {
             <span className="text-muted-foreground">{totalDeploys} deploys</span>
             <div className="h-4 w-px bg-border" />
             <span className="text-muted-foreground">{lastUpdated.toLocaleTimeString()}</span>
+            {user && (
+              <>
+                <div className="h-4 w-px bg-border" />
+                <button
+                  onClick={signOut}
+                  className="flex items-center gap-1 text-muted-foreground hover:text-foreground transition-colors"
+                  title={user.email || "Sign out"}
+                >
+                  <LogOut className="h-3.5 w-3.5" />
+                </button>
+              </>
+            )}
           </div>
         </div>
       </div>
