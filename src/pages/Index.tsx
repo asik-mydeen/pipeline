@@ -18,6 +18,7 @@ export default function Index() {
   const { healthMap, lastPolled, isPolling, error } = useProjectHealth();
   const [appIdMap, setAppIdMap] = useState<Record<string, string>>({});
 
+  // Fetch Dokploy app IDs for management operations
   useEffect(() => {
     fetchDokployProjects()
       .then((data: any) => {
@@ -32,6 +33,7 @@ export default function Index() {
                 map[project.name] = app.applicationId;
               }
             }
+            // Also check top-level applications (legacy format)
             if (project.applications) {
               for (const app of project.applications) {
                 map[app.name || project.name] = app.applicationId;
@@ -45,6 +47,7 @@ export default function Index() {
       .catch(() => {});
   }, []);
 
+  // Merge static project data with live health
   const liveProjects: Project[] = useMemo(() => {
     return projects.map((p) => {
       const live = healthMap[p.name];
@@ -83,6 +86,7 @@ export default function Index() {
     { key: "down", label: "Down" },
   ];
 
+  // Find applicationId for a project
   const getAppId = (project: Project) => {
     return appIdMap[project.appName] || appIdMap[project.name];
   };
@@ -92,6 +96,7 @@ export default function Index() {
       <PipelineHeader projects={liveProjects} lastUpdated={lastUpdated} />
 
       <main className="max-w-6xl mx-auto px-4 sm:px-6 py-6">
+        {/* Controls bar */}
         <div className="flex flex-col sm:flex-row gap-3 mb-6">
           <div className="flex gap-1 bg-secondary/50 rounded-lg p-1">
             {filters.map((f) => (
@@ -134,12 +139,13 @@ export default function Index() {
                 </span>
               )}
               {error && (
-                <span className="text-status-error text-[10px]">\u26A0</span>
+                <span className="text-status-error text-[10px]">⚠</span>
               )}
             </div>
           </div>
         </div>
 
+        {/* Uptime chart */}
         {showUptime && (
           <div className="mb-6 p-4 rounded-lg border bg-card">
             <h3 className="text-sm font-semibold text-foreground mb-3">
@@ -155,6 +161,7 @@ export default function Index() {
           </div>
         )}
 
+        {/* Project cards */}
         <div className="space-y-3">
           {filtered.map((project, i) => (
             <ProjectCard

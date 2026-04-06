@@ -25,6 +25,13 @@ export interface Project {
   githubActions: GitHubAction[];
 }
 
+// Health logic:
+// - "live"    → web app, HTTP 200
+// - "running" → MCP/service, Dokploy done + recent successful deploys
+// - "degraded"→ HTTP 502 or recent errors
+// - "down"    → unreachable web app or no deploys
+// - "unknown" → not enough data
+
 export const projects: Project[] = [
   {
     name: "ship-mcp",
@@ -96,11 +103,12 @@ export const projects: Project[] = [
     ],
   },
   {
-    name: "mindfulbites",
+    name: "BiteBuddy",
     appName: "mindfulbites",
-    domain: "mindfulbites.asikmydeen.com",
+    domain: "bitebuddy.asikmydeen.com",
     serviceType: "web",
-    health: "down",
+    health: "live",
+    httpCode: 200,
     deployments: [
       { status: "done", duration: "24s", message: "fix: lazy-init OpenAI client to avoid build-time crash", timestamp: "2026-04-03T04:53:34Z" },
       { status: "error", duration: "14s", message: "fix: add dark background to page-level containers", timestamp: "2026-04-03T04:51:17Z" },
@@ -162,11 +170,39 @@ export const projects: Project[] = [
     ],
   },
   {
-    name: "car-racers",
+    name: "pipeline-api",
+    appName: "pipeline-api",
+    domain: "pipeline-api.asikmydeen.com",
+    serviceType: "service",
+    health: "running",
+    deployments: [
+      { status: "done", duration: "10s", message: "feat: health probe API for pipeline dashboard", timestamp: "2026-04-06T19:10:00Z" },
+    ],
+    githubActions: [
+      { status: "success", timestamp: "2026-04-06T19:10:00Z" },
+    ],
+  },
+  {
+    name: "voice-assistant",
+    appName: "voice-assistant",
+    domain: "voice-assistant.asikmydeen.com",
+    serviceType: "service",
+    health: "running",
+    deployments: [
+      { status: "done", duration: "3s", message: "Scaffold node/hono via ship-mcp", timestamp: "2026-04-06T17:53:08Z" },
+      { status: "done", duration: "4s", message: "Scaffold node/hono via ship-mcp", timestamp: "2026-04-06T17:50:00Z" },
+    ],
+    githubActions: [
+      { status: "success", timestamp: "2026-04-06T17:53:08Z" },
+    ],
+  },
+  {
+    name: "Aarish Car Racers",
     appName: "ffe",
-    domain: "car-racers.asikmydeen.com",
+    domain: "aarish-car.asikmydeen.com",
     serviceType: "web",
-    health: "down",
+    health: "degraded",
+    httpCode: 502,
     deployments: [
       { status: "done", duration: "0s", message: "Rebuild deployment", timestamp: "2026-04-02T16:00:00Z" },
       { status: "done", duration: "6s", message: "Merge PR #1 add-game feature", timestamp: "2026-04-02T15:50:00Z" },
